@@ -1,0 +1,22 @@
+# basic proxy + auth + logging to stdout/ stderr
+
+http_port 3128
+
+# Authentication (if you need it)
+auth_param basic program /usr/lib/squid/basic_ncsa_auth /etc/squid/passwd
+auth_param basic realm Proxy
+auth_param basic credentialsttl 2 hours
+acl authenticated proxy_auth REQUIRED
+http_access allow authenticated
+http_access deny all
+
+# Run Squid as non-root user (default)
+cache_effective_user proxy
+cache_effective_group proxy
+
+# Logging to console instead of files
+logfile_rotate 0
+cache_log stdio:/dev/stderr
+access_log stdio:/dev/stdout
+
+# (Optional) more config as needed...

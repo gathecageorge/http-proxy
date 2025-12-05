@@ -1,4 +1,4 @@
-name: Mitmproxy Docker Image CI
+name: Http Proxy Docker Image CI
 
 on:
   push:
@@ -34,4 +34,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           file: Dockerfile
-          tags: gathecageorge/mitmproxy:latest
+          tags: gathecageorge/httpproxy:latest
