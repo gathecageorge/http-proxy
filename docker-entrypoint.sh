@@ -17,4 +17,5 @@ cp /etc/squid/squid.conf.template /etc/squid/squid.conf
 chmod 666 /dev/stdout /dev/stderr
 
 # Start Squid in foreground
+rm -f /run/squid.pid
 exec squid -N -f /etc/squid/squid.conf
