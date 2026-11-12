@@ -1,12 +1,24 @@
 services:
   httpproxy:
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
     image: gathecageorge/httpproxy:latest
     restart: unless-stopped
     ports:
-      - 3128:3128       # proxy port
+      - "3128:3128"
     environment:
-      - SQUID_USERNAME=gggg
-      - SQUID_PASSWORD=gggg
+      SQUID_USERNAME: "${SQUID_USERNAME:?Set SQUID_USERNAME in the environment}"
+      SQUID_PASSWORD: "${SQUID_PASSWORD:?Set SQUID_PASSWORD in the environment}"
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=16m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "curl --silent --max-time 3 --output /dev/null --write-out '%{http_code}' http://127.0.0.1:3128/ | grep -q '^407$'"
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
