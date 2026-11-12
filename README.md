@@ -18,7 +18,7 @@ must be a single line and at most 72 bytes.
 
 The sample Compose configuration requires both variables, runs with a
 read-only root filesystem, drops Linux capabilities, and exposes the proxy on
-port 3128. It also checks that Squid is listening; the expected unauthenticated
+port 3128. It also sends an unauthenticated proxy request; the expected
 `407 Proxy Authentication Required` response marks the service healthy. Adjust
 the healthcheck timing in Compose if needed. Do not expose this port to
 untrusted networks without suitable firewall controls.

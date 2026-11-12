@@ -17,7 +17,7 @@ services:
     healthcheck:
       test:
         - CMD-SHELL
-        - "curl --silent --max-time 3 --output /dev/null --write-out '%{http_code}' http://127.0.0.1:3128/ | grep -q '^407$'"
+        - "curl --proxy http://127.0.0.1:3128 --noproxy \"\" --silent --max-time 3 --output /dev/null --write-out '%{http_code}' http://example.com/ | grep -q '^407$'"
       interval: 30s
       timeout: 5s
       start_period: 10s
