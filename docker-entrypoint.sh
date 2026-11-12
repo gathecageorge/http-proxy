@@ -1,21 +1,34 @@
-#!/bin/bash
-set -e
+#!/bin/sh
+set -eu
 
-# Fail if environment variables are missing
-if [ -z "$SQUID_USERNAME" ] || [ -z "$SQUID_PASSWORD" ]; then
-    echo "ERROR: SQUID_USERNAME and SQUID_PASSWORD must be set"
+if [ -z "${SQUID_USERNAME:-}" ] || [ -z "${SQUID_PASSWORD:-}" ]; then
+    printf '%s\n' "ERROR: SQUID_USERNAME and SQUID_PASSWORD must be set" >&2
     exit 1
 fi
 
-# Create the password file using htpasswd
-htpasswd -b -c /etc/squid/passwd "$SQUID_USERNAME" "$SQUID_PASSWORD"
+case "$SQUID_USERNAME" in
+    *[!A-Za-z0-9._-]*)
+        printf '%s\n' "ERROR: SQUID_USERNAME may only contain letters, numbers, '.', '_' and '-'" >&2
+        exit 1
+        ;;
+esac
 
-# Copy template to actual squid.conf
-cp /etc/squid/squid.conf.template /etc/squid/squid.conf
+case "$SQUID_PASSWORD" in
+    *'
+'*)
+        printf '%s\n' "ERROR: SQUID_PASSWORD must not contain a newline" >&2
+        exit 1
+        ;;
+esac
 
-# Ensure permissions (just in case)
-chmod 666 /dev/stdout /dev/stderr
+password_bytes=$(printf '%s' "$SQUID_PASSWORD" | wc -c)
+if [ "$password_bytes" -gt 72 ]; then
+    printf '%s\n' "ERROR: SQUID_PASSWORD must be at most 72 bytes for bcrypt" >&2
+    exit 1
+fi
 
-# Start Squid in foreground
-rm -f /run/squid.pid
+umask 077
+printf '%s\n' "$SQUID_PASSWORD" | htpasswd -B -C 12 -i -c /tmp/squid.passwd "$SQUID_USERNAME"
+unset SQUID_USERNAME SQUID_PASSWORD
+
 exec squid -N -f /etc/squid/squid.conf
