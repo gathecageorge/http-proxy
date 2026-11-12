@@ -31,4 +31,5 @@ umask 077
 printf '%s\n' "$SQUID_PASSWORD" | htpasswd -B -C 12 -i -c /tmp/squid.passwd "$SQUID_USERNAME"
 unset SQUID_USERNAME SQUID_PASSWORD
 
+rm -f /tmp/squid.pid
 exec squid -N -f /etc/squid/squid.conf
